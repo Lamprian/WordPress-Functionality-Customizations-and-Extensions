@@ -68,3 +68,4 @@ add_action('admin_head', 'custom_admin_logo');
  * Ensure that the "admin_logo.png" file exists in the "images" folder of the active theme.
  */
 
+?>
