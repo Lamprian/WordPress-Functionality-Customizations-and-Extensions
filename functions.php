@@ -29,9 +29,6 @@
  */
 
 
-
-
-
 /**
  * Function to regenerate thumbnails for all images in the WordPress media library.
  * Iterates through all image attachments in the database, checks if the file exists,
