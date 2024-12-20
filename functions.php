@@ -1,6 +1,38 @@
 <?php
 
 /**
+ * WordPress Functionality Customizations and Extensions
+ *
+ * Description:
+ * This file is a dynamic script designed to customize and extend the 
+ * functionality of WordPress. Its purpose is to continuously improve 
+ * and adapt features based on project requirements.
+ *
+ * Key Features:
+ * - The file will be frequently updated with new features and improvements.
+ * - Designed to provide flexibility and scalability for WordPress installations.
+ * - Includes well-documented code for easy maintenance and understanding.
+ *
+ * Usage:
+ * - Place this file in your WordPress theme's directory (`wp-content/themes/your-theme/functions.php`).
+ * - Customize the code as per your requirements.
+ *
+ * Author: Anastasios Lamprianidis
+ * Site: https://alamprianidis.gr/
+ *
+ * License: GPL-3.0+
+ *
+ * Copyright (C) 2024
+ *
+ * This program is distributed under the GNU General Public License, version 3 (GPL-3.0+).
+ * See the full license at https://www.gnu.org/licenses/gpl-3.0.html
+ */
+
+
+
+
+
+/**
  * Function to regenerate thumbnails for all images in the WordPress media library.
  * Iterates through all image attachments in the database, checks if the file exists,
  * and regenerates thumbnails using WordPress image processing functions.
