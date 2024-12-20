@@ -31,3 +31,7 @@ Functions
     Detects the first image in the post content.
     If no image is found in the content, it uses the post's featured image.
     Enhances the aesthetics and functionality of the RSS Feed for applications displaying images.
+
+4) Adds a "Duplicate" link to the WordPress admin panel:
+
+Allows users to easily duplicate posts, pages, and custom post types. Copies the original post's content, title, taxonomies, and metadata into a new draft. Securely handles duplication using nonce verification. Displays a success message after duplication.
