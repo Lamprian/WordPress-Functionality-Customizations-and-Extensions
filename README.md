@@ -24,3 +24,10 @@ Functions
 
     Injects CSS into the admin panel.
     Sets an image from the "images" folder of the active theme as the logo.
+
+3) Adds an image to the RSS Feed from the post content:
+
+    Overrides the default RSS Feed behavior by adding images.
+    Detects the first image in the post content.
+    If no image is found in the content, it uses the post's featured image.
+    Enhances the aesthetics and functionality of the RSS Feed for applications displaying images.
