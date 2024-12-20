@@ -34,4 +34,4 @@ Functions
 
 4) Adds a "Duplicate" link to the WordPress admin panel:
 
-Allows users to easily duplicate posts, pages, and custom post types. Copies the original post's content, title, taxonomies, and metadata into a new draft. Securely handles duplication using nonce verification. Displays a success message after duplication.
+   Allows users to easily duplicate posts, pages, and custom post types. Copies the original post's content, title, taxonomies, and metadata into a new draft. Securely handles duplication using nonce     verification. Displays a success message after duplication.
