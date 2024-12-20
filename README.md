@@ -13,3 +13,14 @@ WordPress Functionality Customizations and Extensions
   2. Include clean, well-documented code for ease of understanding, maintenance, and collaboration.
   3. Provide a centralized location for managing all custom modifications and hooks.
  
+Functions
+
+1) regenerateThumbnails: Regenerates thumbnails for all images in the WordPress media library.
+
+    Checks if the image files exist.
+    Uses WordPress image processing functions to regenerate thumbnails.
+
+2) custom_admin_logo: Replaces the default WordPress admin logo with a custom logo.
+
+    Injects CSS into the admin panel.
+    Sets an image from the "images" folder of the active theme as the logo.
