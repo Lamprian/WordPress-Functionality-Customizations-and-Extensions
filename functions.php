@@ -97,6 +97,7 @@ add_action('admin_head', 'custom_admin_logo');
  * Ensure that the "admin_logo.png" file exists in the "images" folder of the active theme.
  */
 
+<?php
 /**
  * Add Image to RSS Feed from Post Content
  *
@@ -147,5 +148,152 @@ function mcw_featured_image_in_feeds($content) {
 // Apply the function to RSS Feeds
 add_filter('the_excerpt_rss', 'mcw_featured_image_in_feeds');
 add_filter('the_content_feed', 'mcw_featured_image_in_feeds');
+
+/**
+ * Note:
+ * This function ensures that images are included in the RSS feed, improving its visual appeal.
+ * It can be extended to support additional image processing or default images if no image is found.
+ */
+
+/**
+ * Duplicate posts and pages without plugins
+ *
+ * Adds a "Duplicate" link to the WordPress admin panel for posts, pages,
+ * and custom post types. The duplicated item is created as a draft.
+ */
+
+// Add the duplicate link to the action list for posts and custom post types
+add_filter('post_row_actions', 'custom_duplicate_post_link', 10, 2);
+
+// Add the duplicate link to the action list for pages
+add_filter('page_row_actions', 'custom_duplicate_post_link', 10, 2);
+
+/**
+ * Add a "Duplicate" link to the post/page action list
+ *
+ * @param array $actions The existing row actions.
+ * @param WP_Post $post The current post object.
+ * @return array The updated row actions with the "Duplicate" link.
+ */
+function custom_duplicate_post_link($actions, $post) {
+    if (!current_user_can('edit_posts')) {
+        return $actions;
+    }
+
+    // Generate the duplicate link
+    $url = wp_nonce_url(
+        add_query_arg(
+            array(
+                'action' => 'custom_duplicate_post_as_draft',
+                'post'   => $post->ID,
+            ),
+            'admin.php'
+        ),
+        basename(__FILE__),
+        'duplicate_nonce'
+    );
+
+    $actions['duplicate'] = '<a href="' . esc_url($url) . '" title="' . esc_attr__('Duplicate this item') . '" rel="permalink">' . __('Duplicate') . '</a>';
+
+    return $actions;
+}
+
+/**
+ * Note:
+ * This function modifies the row actions in the WordPress admin panel
+ * by adding a "Duplicate" link for posts and pages.
+ */
+
+/**
+ * Create a duplicate of the post/page as a draft
+ */
+add_action('admin_action_custom_duplicate_post_as_draft', 'custom_duplicate_post_as_draft');
+
+function custom_duplicate_post_as_draft() {
+    if (empty($_GET['post']) || !isset($_GET['duplicate_nonce']) || !wp_verify_nonce($_GET['duplicate_nonce'], basename(__FILE__))) {
+        wp_die(__('No post to duplicate has been provided or the action is unauthorized.'));
+    }
+
+    $post_id = absint($_GET['post']);
+    $post = get_post($post_id);
+
+    if (!$post) {
+        wp_die(__('Post creation failed, original post not found.'));
+    }
+
+    $current_user = wp_get_current_user();
+    $new_post_author = $current_user->ID;
+
+    // Prepare the duplicated post data
+    $args = array(
+        'comment_status' => $post->comment_status,
+        'ping_status'    => $post->ping_status,
+        'post_author'    => $new_post_author,
+        'post_content'   => $post->post_content,
+        'post_excerpt'   => $post->post_excerpt,
+        'post_name'      => $post->post_name,
+        'post_parent'    => $post->post_parent,
+        'post_password'  => $post->post_password,
+        'post_status'    => 'draft',
+        'post_title'     => $post->post_title,
+        'post_type'      => $post->post_type,
+        'menu_order'     => $post->menu_order
+    );
+
+    $new_post_id = wp_insert_post($args);
+
+    // Duplicate taxonomies
+    $taxonomies = get_object_taxonomies(get_post_type($post));
+    foreach ($taxonomies as $taxonomy) {
+        $post_terms = wp_get_object_terms($post_id, $taxonomy, array('fields' => 'slugs'));
+        wp_set_object_terms($new_post_id, $post_terms, $taxonomy, false);
+    }
+
+    // Duplicate post meta
+    $post_meta = get_post_meta($post_id);
+    foreach ($post_meta as $meta_key => $meta_values) {
+        if ($meta_key === '_wp_old_slug') {
+            continue;
+        }
+        foreach ($meta_values as $meta_value) {
+            add_post_meta($new_post_id, $meta_key, $meta_value);
+        }
+    }
+
+    // Redirect to the list of posts/pages with a success notice
+    wp_safe_redirect(
+        add_query_arg(
+            array(
+                'post_type' => get_post_type($post),
+                'duplicated' => 'success'
+            ),
+            admin_url('edit.php')
+        )
+    );
+    exit;
+}
+
+/**
+ * Note:
+ * This function duplicates a post or page as a draft, including its taxonomies
+ * and metadata. It can be extended to duplicate additional post properties.
+ */
+
+/**
+ * Display a success notice after duplication
+ */
+add_action('admin_notices', 'custom_duplicate_admin_notice');
+
+function custom_duplicate_admin_notice() {
+    if (isset($_GET['duplicated']) && $_GET['duplicated'] === 'success') {
+        echo '<div class="notice notice-success is-dismissible"><p>' . __('Post duplicated successfully.') . '</p></div>';
+    }
+}
+
+/**
+ * Note:
+ * This function adds an admin notice to confirm successful duplication of a post or page.
+ */
+
 
 ?>
