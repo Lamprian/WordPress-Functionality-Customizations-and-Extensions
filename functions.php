@@ -97,4 +97,55 @@ add_action('admin_head', 'custom_admin_logo');
  * Ensure that the "admin_logo.png" file exists in the "images" folder of the active theme.
  */
 
+/**
+ * Add Image to RSS Feed from Post Content
+ *
+ * This function adds the first image found in the post content
+ * or the featured image (if no image is found in the content)
+ * to the RSS feed.
+ *
+ * @param string $content The content of the post.
+ * @return string Updated content with the image included.
+ */
+function mcw_featured_image_in_feeds($content) {
+
+    global $post;
+
+    // Extract the first image from the post content
+    $output = preg_match('/< *img[^>]*src *= *["\']?([^"\']*)/i', $post->post_content, $matches);
+    $first_img = $matches[1] ?? '';
+
+    if ($first_img == '') {
+        // If no image is found in the content, get the featured image
+        $attachment_id = get_post_thumbnail_id($post->ID);
+    } else {
+        // Retrieve the attachment ID using the URL of the first image
+        $attachment_id = attachment_url_to_postid($first_img);
+
+        // If attachment ID is not found, process the image URL to refine it
+        if ($attachment_id == '') {
+            $first_img_parts = explode(".", $first_img);
+            $ext = array_pop($first_img_parts); // Extract the file extension
+
+            $first_img = implode('.', $first_img_parts); 
+            $first_img_parts = explode('-', $first_img);
+            array_pop($first_img_parts); // Remove the size suffix
+            $first_img = implode('-', $first_img_parts) . '.' . $ext;
+
+            $attachment_id = attachment_url_to_postid($first_img);
+        }
+    }
+
+    // If an attachment ID exists, prepend the image to the content
+    if ($attachment_id != '') {
+        $content = wp_get_attachment_image($attachment_id, 'full') . $content;
+    }
+
+    return $content;
+}
+
+// Apply the function to RSS Feeds
+add_filter('the_excerpt_rss', 'mcw_featured_image_in_feeds');
+add_filter('the_content_feed', 'mcw_featured_image_in_feeds');
+
 ?>
