@@ -295,5 +295,78 @@ function custom_duplicate_admin_notice() {
  * This function adds an admin notice to confirm successful duplication of a post or page.
  */
 
+/**
+ * Function to create a new menu in the WordPress admin panel for displaying notifications.
+ * This function moves all admin notifications to a separate page in the admin menu.
+ */
+add_action('admin_menu', 'move_admin_notifications_to_menu');
+function move_admin_notifications_to_menu() {
+    /**
+     * Adds a new menu page for admin notifications.
+     * 
+     * @param string $page_title The title of the page displayed in the browser tab.
+     * @param string $menu_title The title of the menu item displayed in the admin menu.
+     * @param string $capability The required capability to access this menu.
+     * @param string $menu_slug The unique identifier for the menu.
+     * @param callable $function The function that renders the content of the page.
+     * @param string $icon_url The icon displayed in the admin menu.
+     * @param int $position The position of the menu in the admin menu order.
+     */
+    add_menu_page(
+        __('Notifications', 'textdomain'), // The title of the page and menu item.
+        __('Notifications', 'textdomain'), // The title displayed in the admin menu.
+        'manage_options',                 // Capability required to access the page.
+        'admin-notifications',            // Unique slug for the menu.
+        'admin_notifications_page',       // Callback function to render the page content.
+        'dashicons-info',                 // Icon for the menu item.
+        1                                 // Menu position (1 places it at the top).
+    );
+}
+
+/**
+ * Callback function to display the content of the admin notifications page.
+ * This function captures and displays all admin notifications.
+ */
+function admin_notifications_page() {
+    echo '<div class="wrap">'; // Start the page wrapper.
+    echo '<h1>' . __('Notifications', 'textdomain') . '</h1>'; // Display the page title.
+    echo '<div id="admin-notifications-container">'; // Container for notifications.
+
+    /**
+     * Display all admin notices and messages.
+     * Uses the standard WordPress hooks to capture and render notifications.
+     */
+    do_action('admin_notices'); // Hook for displaying regular admin notices.
+    do_action('all_admin_notices'); // Hook for displaying additional admin notices.
+
+    echo '</div>'; // Close the notifications container.
+    echo '</div>'; // Close the page wrapper.
+}
+
+/**
+ * Function to disable admin notifications from appearing on other admin pages.
+ * This ensures notifications are only visible on the "Notifications" page.
+ */
+add_action('in_admin_header', 'disable_admin_notifications_from_main_screen', 1);
+function disable_admin_notifications_from_main_screen() {
+    global $pagenow; // Access the current admin page.
+
+    /**
+     * Check if the current page is NOT the notifications page.
+     * If true, remove all admin notifications.
+     */
+    if (!isset($_GET['page']) || $_GET['page'] !== 'admin-notifications') {
+        remove_all_actions('admin_notices'); // Remove regular admin notices.
+        remove_all_actions('all_admin_notices'); // Remove additional admin notices.
+    }
+}
+
+/**
+ * Notes:
+ * - This script moves all admin notifications to a separate menu page called "Notifications."
+ * - The notifications are no longer displayed on other admin pages.
+ * - Adjustments can be made to the menu position or title as needed.
+ */
+
 
 ?>
