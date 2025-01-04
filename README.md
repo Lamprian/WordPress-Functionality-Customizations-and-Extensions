@@ -35,3 +35,7 @@ Functions
 4) Adds a "Duplicate" link to the WordPress admin panel:
 
    Allows users to easily duplicate posts, pages, and custom post types. Copies the original post's content, title, taxonomies, and metadata into a new draft. Securely handles duplication using nonce     verification. Displays a success message after duplication.
+
+5) Adds a "Notifications" menu to the WordPress admin panel:
+
+Moves all admin notifications to a dedicated "Notifications" page in the WordPress dashboard. This ensures a cleaner admin interface by removing notifications from other admin pages. Captures all admin notices and additional notices using WordPress hooks. Displays the notifications in a structured way on the new "Notifications" page. The menu is positioned at the top of the admin menu for easy access. Includes proper capability checks to ensure only authorized users can view the page.
