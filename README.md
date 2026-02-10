@@ -77,4 +77,4 @@ to specific project needs.
 ## Maintenance Notes
 
 - The admin notifications `Notes` comment block in `functions.php` is intentionally kept at the very end of the file.
-- Every function in `functions.php` is wrapped with `/* Function Start: ... */` and `/* Function End: ... */` comments, so each block is easy to copy/paste independently.
+- Every function in `functions.php` is wrapped with multi-line `Start` / `End` comments (example style: `/* Start: ... */` and `/* End: ... */`), so each block is easy to copy/paste independently.
