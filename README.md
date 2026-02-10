@@ -74,3 +74,9 @@ to specific project needs.
 
 16. **`mcw_add_basic_security_headers`**
    - Adds baseline security headers (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`) to frontend responses.
+
+
+## Maintenance Notes
+
+- The admin notifications `Notes` comment block in `functions.php` is intentionally kept at the very end of the file.
+- Every function in `functions.php` is wrapped with `/* Function Start: ... */` and `/* Function End: ... */` comments, so each block is easy to copy/paste independently.
