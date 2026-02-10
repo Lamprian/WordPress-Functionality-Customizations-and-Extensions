@@ -1,3 +1,5 @@
+<?php
+
 The file will be frequently updated with new features and improvements.
  * - Designed to provide flexibility and scalability for WordPress installations.
  * - Includes well-documented code for easy maintenance and understanding.
