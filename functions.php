@@ -305,7 +305,7 @@ function move_admin_notifications_to_menu() {
      * @param string $icon_url The icon displayed in the admin menu.
      * @param int $position The position of the menu in the admin menu order.
      */
-@@ -327,46 +388,84 @@ function move_admin_notifications_to_menu() {
+@@ -327,46 +388,250 @@ function move_admin_notifications_to_menu() {
  * Callback function to display the content of the admin notifications page.
  * This function captures and displays all admin notifications.
  */
@@ -381,11 +381,178 @@ function render_current_year_shortcode() {
     return esc_html(wp_date('Y'));
 }
 
+
 /**
+ * Sanitize SVG uploads by restricting mime/extension combinations.
+ */
+function mcw_allow_safe_svg_uploads($mimes) {
+    if (!current_user_can('manage_options')) {
+        return $mimes;
+    }
+
+    $mimes['svg'] = 'image/svg+xml';
+    return $mimes;
+}
+
+add_filter('upload_mimes', 'mcw_allow_safe_svg_uploads');
+
+/**
+ * Add automatic lazy-loading and async decoding to post images.
+ */
+function mcw_add_image_performance_attributes($content) {
+    if (is_admin() || empty($content)) {
+        return $content;
+    }
+
+    $content = preg_replace('/<img(?![^>]*loading=)([^>]*)>/i', '<img loading="lazy"$1>', $content);
+    $content = preg_replace('/<img(?![^>]*decoding=)([^>]*)>/i', '<img decoding="async"$1>', $content);
+
+    return $content;
+}
+
+add_filter('the_content', 'mcw_add_image_performance_attributes', 20);
+
+/**
+ * Disable comments and pingbacks on media attachments.
+ */
+function mcw_close_attachment_comments($open, $post_id) {
+    if ('attachment' === get_post_type($post_id)) {
+        return false;
+    }
+
+    return $open;
+}
+
+add_filter('comments_open', 'mcw_close_attachment_comments', 10, 2);
+add_filter('pings_open', 'mcw_close_attachment_comments', 10, 2);
+
+/**
+ * Remove query strings from static assets for improved cache hit ratio.
+ */
+function mcw_remove_asset_query_strings($src) {
+    if (is_admin() || empty($src)) {
+        return $src;
+    }
+
+    $parts = explode('?', $src);
+    return $parts[0];
+}
+
+add_filter('script_loader_src', 'mcw_remove_asset_query_strings', 15);
+add_filter('style_loader_src', 'mcw_remove_asset_query_strings', 15);
+
+/**
+ * Auto-assign featured image from first content image if missing.
+ */
+function mcw_auto_set_featured_image_from_content($post_id) {
+    if (wp_is_post_revision($post_id) || wp_is_post_autosave($post_id)) {
+        return;
+    }
+
+    if (has_post_thumbnail($post_id)) {
+        return;
+    }
+
+    $post = get_post($post_id);
+    if (!$post instanceof WP_Post || empty($post->post_content)) {
+        return;
+    }
+
+    preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $post->post_content, $matches);
+
+    if (empty($matches[1])) {
+        return;
+    }
+
+    $attachment_id = mcw_get_attachment_id_from_image_url($matches[1]);
+
+    if (!empty($attachment_id)) {
+        set_post_thumbnail($post_id, $attachment_id);
+    }
+}
+
+add_action('save_post', 'mcw_auto_set_featured_image_from_content', 30);
+
+/**
+ * Add a custom REST field with reading-time estimate (minutes).
+ */
+function mcw_register_reading_time_rest_field() {
+    register_rest_field(
+        array('post', 'page'),
+        'reading_time_minutes',
+        array(
+            'get_callback' => 'mcw_get_reading_time_for_rest',
+            'schema'       => array(
+                'description' => __('Estimated reading time in minutes.', 'textdomain'),
+                'type'        => 'integer',
+                'context'     => array('view', 'edit'),
+            ),
+        )
+    );
+}
+
+add_action('rest_api_init', 'mcw_register_reading_time_rest_field');
+
+/**
+ * Calculate reading-time estimate based on content length.
+ */
+function mcw_get_reading_time_for_rest($post_arr) {
+    $post_id = isset($post_arr['id']) ? absint($post_arr['id']) : 0;
+
+    if (empty($post_id)) {
+        return 0;
+    }
+
+    $content = get_post_field('post_content', $post_id);
+    $word_count = str_word_count(wp_strip_all_tags($content));
+
+    return max(1, (int) ceil($word_count / 220));
+}
+
+/**
+ * Add a reusable shortcode for estimated reading time in current post.
+ */
+function mcw_register_reading_time_shortcode() {
+    add_shortcode('reading_time', 'mcw_render_reading_time_shortcode');
+}
+
+add_action('init', 'mcw_register_reading_time_shortcode');
+
+/**
+ * Render reading-time shortcode output.
+ */
+function mcw_render_reading_time_shortcode() {
+    $post_id = get_the_ID();
+
+    if (empty($post_id)) {
+        return '';
+    }
+
+    $minutes = mcw_get_reading_time_for_rest(array('id' => $post_id));
+    return sprintf(esc_html__('%d min read', 'textdomain'), $minutes);
+}
+
+/**
+ * Add security headers to frontend responses.
+ */
+function mcw_add_basic_security_headers() {
+    if (is_admin() || headers_sent()) {
+        return;
+    }
+
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+}
+
+add_action('send_headers', 'mcw_add_basic_security_headers');
+
+
+ /**
  * Notes:
  * - This script moves all admin notifications to a separate menu page called "Notifications."
  * - The notifications are no longer displayed on other admin pages.
  * - Adjustments can be made to the menu position or title as needed.
  */
-
+        
 ?>
