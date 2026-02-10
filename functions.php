@@ -22,7 +22,7 @@
  *
  * License: GPL-3.0+
  *
- * Copyright (C) 2024
+ * Copyright (C) 2026
  *
  * This program is distributed under the GNU General Public License, version 3 (GPL-3.0+).
  * See the full license at https://www.gnu.org/licenses/gpl-3.0.html
