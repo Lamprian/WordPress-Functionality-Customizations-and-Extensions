@@ -1,3 +1,4 @@
+<?php
 /**
  * Note:
  * This function does not return a specific value; it processes all images silently.
@@ -546,7 +547,8 @@ function mcw_add_basic_security_headers() {
 }
 
 add_action('send_headers', 'mcw_add_basic_security_headers');
-
+        
+?>
 
  /**
  * Notes:
@@ -554,5 +556,3 @@ add_action('send_headers', 'mcw_add_basic_security_headers');
  * - The notifications are no longer displayed on other admin pages.
  * - Adjustments can be made to the menu position or title as needed.
  */
-        
-?>
