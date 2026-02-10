@@ -1,7 +1,5 @@
 # WordPress-Functionality-Customizations-and-Extensions
 
-WordPress Functionality Customizations and Extensions
-
 ## Introduction
 
 This `functions.php` file is a dynamic and continuously evolving script for customizing WordPress functionality.
